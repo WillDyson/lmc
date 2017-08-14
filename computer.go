@@ -47,8 +47,6 @@ var (
 
 // Makes a step over the loaded program
 func (c *Computer) Step() error {
-	printStepInfo(c)
-
 	if c.Halted {
 		return ErrMachineOff
 	}

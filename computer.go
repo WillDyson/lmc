@@ -22,11 +22,12 @@ type Computer struct {
 
 // Wraps the given int into [0, 999]
 func wrap(i int) int {
-	r := i % 1000
+	i += 999
+	r := i % 1999
 	if r < 0 {
-		r += 1000
+		r += 1999
 	}
-	return r
+	return r - 999
 }
 
 // Separates the given int into the opcode and operand

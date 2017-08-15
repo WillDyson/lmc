@@ -102,7 +102,11 @@ func executeExample(t *testing.T, dir string) {
 		return
 	}
 
-	prog := Compile(string(data))
+	prog, err := Compile(string(data))
+	if err != nil {
+		t.Log("Error compiling program of example", dir)
+		return
+	}
 
 	for _, file := range F {
 		if file.IsDir() {

@@ -9,6 +9,7 @@ import (
 )
 
 const DAT = 1000
+const EMPTY = 1001
 
 // Takes a command and returns the numeric opcode
 func opcode(command string) int {
@@ -34,7 +35,7 @@ func opcode(command string) int {
 }
 
 // Regular expression used in line processing
-var reg = regexp.MustCompile(`^\s*(\w+)\s*(\w*)\s*(\w*)\s*(?://)?.*$`)
+var reg = regexp.MustCompile(`^\s*(\w*)\s*(\w*)\s*(\w*)\s*(?://)?.*$`)
 
 // Seperates the given input into its label opcode and usedlabel
 func processLine(input string) (string, int, string) {
@@ -52,6 +53,9 @@ func processLine(input string) (string, int, string) {
 	}
 	if line[1] == "" {
 		line = line[:1]
+	}
+	if line[0] == "" && len(line) == 1 {
+		return "", EMPTY, ""
 	}
 
 	opc := -1
@@ -80,7 +84,7 @@ func processLine(input string) (string, int, string) {
 }
 
 // Compiles and returns the given program
-func Compile(code string) [100]int {
+func Compile(code string) ([100]int, error) {
 	var pc int
 	var output [100]int
 
@@ -100,13 +104,14 @@ func Compile(code string) [100]int {
 
 		lab, opc, usedlab := processLine(scanner.Text())
 		if opc == -1 {
-			fmt.Printf("Warning: invalid opcode on line %d\n", lineCount)
-			continue
+			return output, fmt.Errorf("Error: invalid opcode on line %d", lineCount)
 		}
 
 		if opc == DAT {
 			i, _ := strconv.Atoi(usedlab)
 			output[pc] = wrap(i)
+		} else if opc == EMPTY {
+			continue
 		} else {
 			output[pc] = opc
 			if usedlab != "" {
@@ -123,6 +128,10 @@ func Compile(code string) [100]int {
 		}
 
 		if lab != "" {
+			_, ok := labels[lab]
+			if ok {
+				return output, fmt.Errorf("Error: label %s already used", lab)
+			}
 			labels[lab] = pc
 		}
 
@@ -130,8 +139,12 @@ func Compile(code string) [100]int {
 	}
 
 	for key, val := range usedlabel {
-		output[key] += labels[val]
+		i, ok := labels[val]
+		if !ok {
+			return output, fmt.Errorf("Error: label %s not found", val)
+		}
+		output[key] += i
 	}
 
-	return output
+	return output, nil
 }

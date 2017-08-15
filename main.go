@@ -18,12 +18,14 @@ func compile(c *cli.Context) error {
 		reader = os.Stdin
 	} else {
 		if c.NArg() == 0 {
+			fmt.Println("No file was given to be compiled")
 			return errNoFileGiven
 		}
 
 		file, err := os.Open(c.Args().Get(0))
 		if err != nil {
 			fmt.Println(err)
+			fmt.Println("Failed to open program for reading")
 			return err
 		}
 		reader = file
@@ -33,14 +35,25 @@ func compile(c *cli.Context) error {
 	data, err := ioutil.ReadAll(reader)
 	if err != nil {
 		fmt.Println(err)
+		fmt.Println("Failed to read program")
 		return err
 	}
 
-	err = writeOutput(Compile(string(data)), appOut)
+	prog, err := Compile(string(data))
 	if err != nil {
 		fmt.Println(err)
+		fmt.Println("Failed to compile program")
+		return err
 	}
-	return err
+
+	err = writeOutput(prog, appOut)
+	if err != nil {
+		fmt.Println(err)
+		fmt.Println("Failed to write the compiled program to hd")
+		return err
+	}
+
+	return nil
 }
 
 // Prints useful information about the current step to the user

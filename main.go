@@ -77,7 +77,9 @@ func run(c *cli.Context) error {
 
 	err = nil
 	for err == nil {
-		printStepInfo(comp)
+		if !appQuiet {
+			printStepInfo(comp)
+		}
 		err = comp.Step()
 	}
 
@@ -94,6 +96,7 @@ var (
 	appTerminal bool
 	appFile     string
 	appOut      string
+	appQuiet    bool
 )
 
 func main() {
@@ -126,6 +129,13 @@ func main() {
 			Aliases: []string{"r"},
 			Usage:   "runs the given program",
 			Action:  run,
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:        "quiet,q",
+					Usage:       "hides the machine state information",
+					Destination: &appQuiet,
+				},
+			},
 		},
 	}
 	app.Run(os.Args)

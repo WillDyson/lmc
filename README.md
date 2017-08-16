@@ -3,7 +3,7 @@ A golang implementation of the little man computer
 
 ## Usage
 ```
-lmc c -t -o sub.out
+> lmc c -t -o sub.out
 INP
 STA FIRST
 INP
@@ -16,5 +16,5 @@ FIRST DAT
 SECOND DAT
 <C-d>
 
-lmc r sub.out
+> lmc r sub.out
 ```
